@@ -40,6 +40,7 @@ import java.util.HashMap;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 import edu.cmu.pocketsphinx.Assets;
@@ -49,6 +50,7 @@ import edu.cmu.pocketsphinx.SpeechRecognizer;
 
 public class PocketSphinxActivity extends Activity implements
         RecognitionListener {
+    private static final String TAG = PocketSphinxActivity.class.getSimpleName();
 		
     /* Named searches allow to quickly reconfigure the decoder */
     private static final String KWS_SEARCH = "wakeup";
@@ -124,6 +126,7 @@ public class PocketSphinxActivity extends Activity implements
     	    return;
 
         String text = hypothesis.getHypstr();
+        log("onPartialResult, result = " + text);
         if (text.equals(KEYPHRASE))
             switchSearch(MENU_SEARCH);
         else if (text.equals(DIGITS_SEARCH))
@@ -144,12 +147,18 @@ public class PocketSphinxActivity extends Activity implements
         ((TextView) findViewById(R.id.result_text)).setText("");
         if (hypothesis != null) {
             String text = hypothesis.getHypstr();
+            log("onResult, result = " + text);
             makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
         }
     }
 
+    private void log(String msg){
+        Log.i(TAG, msg);
+    }
+
     @Override
     public void onBeginningOfSpeech() {
+        log("onBeginningOfSpeecho");
     }
 
     /**
@@ -157,6 +166,7 @@ public class PocketSphinxActivity extends Activity implements
      */
     @Override
     public void onEndOfSpeech() {
+        log("onEndOfSpeech");
         if (!recognizer.getSearchName().equals(KWS_SEARCH))
             switchSearch(KWS_SEARCH);
     }
@@ -220,11 +230,13 @@ public class PocketSphinxActivity extends Activity implements
 
     @Override
     public void onError(Exception error) {
+        log("onError, error = " + error.getMessage());
         ((TextView) findViewById(R.id.caption_text)).setText(error.getMessage());
     }
 
     @Override
     public void onTimeout() {
+        log("onTimeout");
         switchSearch(KWS_SEARCH);
     }
 }
